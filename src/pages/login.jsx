@@ -44,7 +44,7 @@ const Login = () => {
     }
 
     return ( 
-            <Box maxW={"500px"} minW={"400px"} minH={"400px"} border={"2px solid black"} bg="blackAlpha.500" borderRadius="1em" align="center" >
+            <Box maxW={"500px"} minW={"400px"} minH={"400px"} border={"2px solid black"} bg="blackAlpha.500" borderRadius="1em" align="center" mx="auto" mt="5em">
                 <VStack>
                     <Form onSubmit={handleSubmit}>
                         <Heading p="1em" mx="auto">Login</Heading>

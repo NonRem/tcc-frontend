@@ -8,7 +8,7 @@ const Venda = () => {
     const [total, setTotal] = useState()
     const [codigo, setCodigo] = useState()
 
-    async function getProduto() {
+    /*async function getProduto() {
         const response = await api.get(`/produto/short/${codigo}`, {headers: {'accept': 'application/json', 'Authorization': `Bearer ${token}`}, withCredentials: true});
         let codProduto = response.data.cod_produto
         
@@ -20,7 +20,7 @@ const Venda = () => {
                 setProdutos(...produtos,)
         }
         
-    }
+    }*/
 
     return (
         <SimpleGrid minChildWidth={300} spacing={1}>
