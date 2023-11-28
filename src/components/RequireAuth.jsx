@@ -4,11 +4,14 @@ import useAuth from "../hooks/useAuth";
 const RequireAuth = () => {
     const {auth} = useAuth();
     const location = useLocation();
+    const token = JSON.parse(window.localStorage.getItem('accessToken'))
 
     return (
         auth?.username
             ? <Outlet />
-            : <Navigate to="/login" state={{ from: location}} replace />
+            : token !== undefined && token?.expires > new Date().getTime()
+            ? <Outlet />
+            : <Navigate to="/" state={{ from: location}} replace />
     )
 }
 

@@ -4,11 +4,12 @@ import api from "../services/api";
 import useAuth from "../hooks/useAuth";
 import { Box, Button, FormLabel, Heading, Input, VStack } from "@chakra-ui/react";
 
-const Login = () => {
+const LoginCaixa = () => {
     const {auth, setAuth} = useAuth()
     const userRef = useRef()
     const errRef = useRef()
     const navigate = useNavigate()
+    const now = new Date()
 
     const [username, setUsername] = useState()
     const [password, setPassword] = useState()
@@ -24,10 +25,11 @@ const Login = () => {
             const response = await api.post('/auth/token', {username: username, password: password}, {headers: {'Content-Type': 'application/x-www-form-urlencoded'}, withCredentials: true});
             const accessToken = response.data.access_token;
             setAuth({username, password, accessToken});
-            window.localStorage.setItem("accessToken", accessToken);
-            window.localStorage.setItem("usuario", username);
+            let expire = now.getTime() + 1200000
+            window.localStorage.setItem("accessToken", `{"value": "${accessToken}", "expires": ${expire}}`);
+            window.localStorage.setItem("usuario", `{"value": "${username}", "expires": ${expire}}`);
             if(response.status===200) {
-                navigate("/estoque")
+                navigate("/venda")
             }
         } catch(err) {
             if (!err?.response) {
@@ -59,4 +61,4 @@ const Login = () => {
      );
 }
  
-export default Login;
+export default LoginCaixa;

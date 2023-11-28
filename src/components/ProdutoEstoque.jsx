@@ -1,38 +1,42 @@
-import { Card, CardBody, CardFooter, CardHeader, Heading, Progress, Text, HStack, Button, useDisclosure, Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, List, ListItem, TableContainer, Table, Thead, Th, Tr, Tbody, Td, ModalCloseButton } from "@chakra-ui/react";
+import { Card, CardBody, CardFooter, CardHeader, Heading, Progress, Text, HStack, Button, useDisclosure, Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, List, ListItem, TableContainer, Table, Thead, Th, Tr, Tbody, Td, ModalCloseButton, CircularProgress, CircularProgressLabel, VStack, Spacer } from "@chakra-ui/react";
 import api from "../services/api";
 import { useState } from "react";
-import DetalhesProduto from "./DetalhesProduto";
 
-const ProdutoEstoque = ({produto}) => {
+const ProdutoEstoque = ({produto, percent}) => {
     const {onOpen, isOpen, onClose} = useDisclosure()
     const [detalhes, setDetalhes] = useState()
-    let token = window.localStorage.getItem("accessToken")
+    const token = JSON.parse(window.localStorage.getItem('accessToken'))
 
     async function exibirDetalhes(cod) {
-        const response = await api.get(`/produto/${cod}`, {headers: {'accept': 'application/json', 'Authorization': `Bearer ${token}`}, withCredentials: true})
+        const response = await api.get(`/produto/${cod}`, {headers: {'accept': 'application/json', 'Authorization': `Bearer ${token.value}`}, withCredentials: true})
         setDetalhes(response.data)
         console.log(response.data)
         onOpen();
     }
 
     return (<>
-        <Card minW="450px" maxWidth={"450px"} bg="gray.300" border="1px solid black" m="5px" borderTop={"5px solid black"}>
+        <Card w="450px" bg="gray.300" border="1px solid black" m="5px" borderTop={"5px solid black"}>
             <CardHeader mb="0">
                 <Heading as="h3" size="sm">{produto.mercadoria.nome}</Heading>
                 <Text>Cód.: {produto.mercadoria.cod_produto}</Text>
             </CardHeader>
 
-            <CardBody mt="0" pt="0">
-                <Text mb="2px">Quantidades:</Text>    
-                <HStack justify={"space-between"}>
+            <CardBody mt="0" py="0">
+                <Text mb="2px">Quantidade em estoque:</Text>
+                <HStack>    
+                <VStack alignItems={"flex-start"}>
                     <Text>Min.:{produto.quant_min}</Text>
                     <Text>Atual:{produto.quant_atual}</Text>
                     <Text>Max:{produto.quant_max}</Text>
+                </VStack>
+                <Spacer />
+                <CircularProgress size="100px" colorScheme={"orange"} color="blue.700" value={percent}>
+                    <CircularProgressLabel>{percent}%</CircularProgressLabel>
+                </CircularProgress>
                 </HStack>
-                <Progress border="1px solid black" colorScheme={"orange"} borderRadius="5px" color="blue.700" value={(produto.quant_atual / produto.quant_max)*100} />
             </CardBody>
         
-            <CardFooter>
+            <CardFooter pt="1em">
                 <Button colorScheme="orange" onClick={() => exibirDetalhes(produto.mercadoria.cod_produto)}>Detalhes</Button>
             </CardFooter>
         </Card>

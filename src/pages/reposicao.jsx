@@ -5,15 +5,14 @@ import moment from "moment"
 import { Form, useNavigate } from "react-router-dom";
 
 const Reposicao = () => {
-    const toast = useToast()
-    const [reposicoes, setReposicoes] = useState()
+    const [reposicoes, setReposicoes] = useState([])
     const [quantidade, setQuantidade] = useState()
     const [produto, setProduto] = useState()
-    const token = window.localStorage.getItem("accessToken")
-    const navigate = useNavigate()
+    const token = JSON.parse(window.localStorage.getItem('accessToken'))
 
     useEffect(() => {
         getReposicao()
+        sortReposicao()
     }, [])
 
     function formatDate(date) {
@@ -22,16 +21,29 @@ const Reposicao = () => {
     
     async function getReposicao() {
         console.log(token)
-        const response = await api.get('/reposicao', {headers: {'accept': 'application/json', 'Authorization': `Bearer ${token}`}, withCredentials: true});
+        const response = await api.get('/reposicao', {headers: {'accept': 'application/json', 'Authorization': `Bearer ${token.value}`}, withCredentials: true});
         setReposicoes(response.data)
+    }
+
+    function sortReposicao() {
+        let sorted = reposicoes.sort((a, b) => {
+            let da = new Date(a.data)
+            let db = new Date(b.data)
+            return db - da
+        })
+        console.log(reposicoes)
+        console.log(sorted)
+        setReposicoes(sorted)
     }
 
     async function postReposicao(e) {
         e.preventDefault()
         console.log(token)
-        const response = await api.post('/reposicao/add', {quantidade: quantidade, cod_produto: produto}, {headers: {'accept': 'application/json', 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json'}, withCredentials: true})
+        const response = await api.post('/reposicao/add', {quantidade: quantidade, cod_produto: produto}, {headers: {'accept': 'application/json', 'Authorization': `Bearer ${token.value}`, 'Content-Type': 'application/json'}, withCredentials: true})
         console.log(response.data)
-        toast({title:'Reposição realizada.', description:'Reposição realizada com sucesso.', duration: 5000})
+        if(response.status === 200) {
+            window.location.reload()
+        }
     }
 
     return ( 

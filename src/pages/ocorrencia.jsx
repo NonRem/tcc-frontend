@@ -8,7 +8,7 @@ const Ocorrencia = () => {
     const [ocorrencias, setOcorrencias] = useState()
     const [produto, setProduto] = useState()
     const [estados, setEstados] = useState({Encontrado:0, Estragado:0, Furtado:0, Perdido:0})
-    const token = window.localStorage.getItem("accessToken")
+    const token = JSON.parse(window.localStorage.getItem('accessToken'))
     const toast = useToast()
 
     useEffect(() => {
@@ -16,7 +16,7 @@ const Ocorrencia = () => {
     }, [])
     
     async function getOcorrencia() {
-        const response = await api.get('/ocorrencia', {headers: {'accept': 'application/json', 'Authorization': `Bearer ${token}`}, withCredentials: true});
+        const response = await api.get('/ocorrencia', {headers: {'accept': 'application/json', 'Authorization': `Bearer ${token.value}`}, withCredentials: true});
         setOcorrencias(response.data)
     }
 
@@ -29,9 +29,12 @@ const Ocorrencia = () => {
         let relatorio = {}
         relatorio[produto] = estados
         console.log(relatorio)
-        const response = await api.post('/ocorrencia/add', {relatorio: relatorio}, {headers: {'accept': 'application/json', 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json'}, withCredentials: true})
+        const response = await api.post('/ocorrencia/add', {relatorio: relatorio}, {headers: {'accept': 'application/json', 'Authorization': `Bearer ${token.value}`, 'Content-Type': 'application/json'}, withCredentials: true})
         console.log(response.data)
         toast({title:'Relatório enviado.', description:'Relatório enviado com sucesso.', duration: 5000})
+        if(response.status === 200) {
+            window.location.reload()
+        }
     }
 
     console.log(ocorrencias)
@@ -45,9 +48,9 @@ const Ocorrencia = () => {
 
             <TabPanels>
                 <TabPanel>
-                    <Accordion>
+                    <Accordion bg="gray.300">
                         {ocorrencias && ocorrencias.map(ocorrencia => 
-                            <AccordionItem>
+                            <AccordionItem border="1px solid black">
                                 <AccordionButton>
                                     <HStack justify={"space-between"}>
                                         <Text>Autor: {ocorrencia.autor.nome_funcionario} - {ocorrencia.autor.posicao.nome_cargo}</Text>
@@ -55,12 +58,13 @@ const Ocorrencia = () => {
                                     </HStack>
                                 </AccordionButton>
                                 <AccordionPanel>
-                                    <VStack>
-                                        {Object.keys(ocorrencia.relatorio).map(item =>
-                                            <HStack>
-                                                <Text>Cód. do produto: {item}</Text>
-                                                <Text>{ocorrencia.relatorio[{item}]}</Text>
-                                            </HStack>)}
+                                    <VStack alignItems="space-between">
+                                        {ocorrencia && Object.keys(ocorrencia.relatorio).map(item =>
+                                            <VStack alignItems="space-between">
+                                                <Text fontSize="lg" as="b">Cód. do produto: {item}</Text>
+                                                {item && Object.keys(ocorrencia.relatorio[item]).map(key =>
+                                                    <Text>{key}: {ocorrencia.relatorio[item][key]}</Text>)}
+                                            </VStack>)}
                                     </VStack>
                                 </AccordionPanel>
                             </AccordionItem>)}

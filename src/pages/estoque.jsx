@@ -4,27 +4,32 @@ import ProdutoEstoque from "../components/ProdutoEstoque";
 import { SimpleGrid } from "@chakra-ui/react";
 
 const Estoque = () => {
-    const [produtos, setProdutos] = useState(null);
+    const [produtos, setProdutos] = useState([]);
     //const [informacaoes, setInformacaoes] = useState();
-    let token = '';
+    const token = JSON.parse(window.localStorage.getItem('accessToken'))
 
 
     useEffect(() => {
-        token = window.localStorage.getItem('accessToken')
         getProdutos()
+        sortProdutos()
     }, [])
 
+    function sortProdutos() {
+        let sorted = produtos.sort((a, b) => (b.quant_atual/b.quant_max) - (a.quant_atual/a.quant_max))
+        setProdutos(sorted)
+    }
+
     async function getProdutos() {
-        const response = await api.get('/estoque', {headers: {'accept': 'application/json', 'Authorization': `Bearer ${token}`}, withCredentials: true});
+        const response = await api.get('/estoque', {headers: {'accept': 'application/json', 'Authorization': `Bearer ${token.value}`}, withCredentials: true});
         setProdutos(response.data);
     }
 
     console.log(produtos)
 
     return (
-        <SimpleGrid minChildWidth={500} spacing={1}>
+        <SimpleGrid minChildWidth={450} spacing={1}>
             {produtos && produtos.map(produto => 
-                <ProdutoEstoque produto={produto} key={produto.id}/>
+                <ProdutoEstoque produto={produto} percent={((produto.quant_atual / produto.quant_max)*100 >> 0)} key={produto.id}/>
             )}
         </SimpleGrid>
     );
